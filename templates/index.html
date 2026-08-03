@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartFit AI</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 40px;
+        }
+        h1 {
+            color: #00e676;
+        }
+        img {
+            border: 3px solid #00e676;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: #00e676;
+            color: #121212;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+        }
+        a.button:hover {
+            background-color: #00c65e;
+        }
+    </style>
+</head>
+<body>
+    <h1>SmartFit AI - Live Workout Tracker</h1>
+    <img src="/video_feed" width="640" height="480">
+    <br>
+    <a href="/save_workout" class="button">Save Workout</a>
+    <div id="stats">
+    <p>Reps: <span id="reps">0</span></p>
+    <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
+    </div>
+<script>
+function updateStats() {
+    fetch('/get_stats')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('reps').innerText = data.reps;
+            document.getElementById('heart_rate').innerText = data.heart_rate;
+        });
+}
+
+setInterval(updateStats, 1000);
+</script>
+</body>
+</html>

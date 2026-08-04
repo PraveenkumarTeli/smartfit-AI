@@ -41,6 +41,7 @@
     <button onclick="resetCounter()" class="button">Reset Counter</button>
     <div id="stats">
     <p>Reps: <span id="reps">0</span></p>
+    <p>Squats: <span id="squats">0</span></p>
     <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
     </div>
 <script>
@@ -52,6 +53,7 @@ function updateStats() {
         .then(response => response.json())
         .then(data => {
             document.getElementById('reps').innerText = data.reps;
+            document.getElementById('squats').innerText = data.squats;
             document.getElementById('heart_rate').innerText = data.heart_rate;
         });
 }

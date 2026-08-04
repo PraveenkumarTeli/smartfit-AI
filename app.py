@@ -33,6 +33,9 @@ frame_timestamp_ms = 0
 counter = 0
 stage_right = "down"
 stage_left = "down"
+squat_counter = 0
+stage_squat = "up"
+
 connections = [
     (11, 12), (12, 14), (14, 16), (11, 13), (13, 15),
     (11, 23), (12, 24), (23, 24),
@@ -40,7 +43,7 @@ connections = [
 ]
 
 def generate_frames():
-    global frame_timestamp_ms, counter, stage_right,stage_left
+    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat
 
     while True:
         ret, frame = cap.read()
@@ -71,6 +74,15 @@ def generate_frames():
                 if angle_l > 160 and stage_left == "up":
                     stage_left = "down"
                     counter = counter + 1
+
+                hip,knee,ankle = pose[24],pose[26],pose[28]
+                angle_knee=calculate_angle(hip,knee,ankle )
+                if angle_knee < 90 and stage_squat == "up":
+                    stage_squat = "down"
+                if angle_knee > 160 and stage_squat == "down":
+                    stage_squat = "up"
+                    squat_counter = squat_counter + 1
+                
                 for start_idx, end_idx in connections:
                     start = pose[start_idx]
                     end = pose[end_idx]
@@ -85,6 +97,8 @@ def generate_frames():
                 cv2.putText(frame, "R Angle: " + str(int(angle_r)), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(frame, "L Angle: " + str(int(angle_l)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(frame, "Rep Count: "+str(counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(frame, "knee Angle: " + str(int(angle_knee)), (50, 250), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(frame, "squat count: "+str(squat_counter), (50, 300), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(frame, "BPM: "+str(int(get_heart_rate())), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
         ret, buffer = cv2.imencode('.jpg', frame)
@@ -104,11 +118,12 @@ def video_feed():
 def save_workout():
     cursor=conn.cursor()
     cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("bicep_curl",counter,"2028-08-02"))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("squat",squat_counter,"2028-08-02"))
     conn.commit()
     return "workout saved!"
 @app.route('/get_stats')
 def get_stats():
-    return jsonify({"reps": counter, "heart_rate": get_heart_rate()})
+    return jsonify({"reps": counter, "squats": squat_counter, "heart_rate": get_heart_rate()})
 @app.route('/reset_count')
 def reset_count():
     global counter

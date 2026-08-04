@@ -18,7 +18,7 @@
             border-radius: 10px;
             margin-top: 20px;
         }
-        a.button {
+        a.button,button.button {
             display: inline-block;
             margin-top: 20px;
             padding: 12px 24px;
@@ -38,11 +38,15 @@
     <img src="/video_feed" width="640" height="480">
     <br>
     <a href="/save_workout" class="button">Save Workout</a>
+    <button onclick="resetCounter()" class="button">Reset Counter</button>
     <div id="stats">
     <p>Reps: <span id="reps">0</span></p>
     <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
     </div>
 <script>
+    function resetCounter() {
+    fetch('/reset_count');
+}
 function updateStats() {
     fetch('/get_stats')
         .then(response => response.json())

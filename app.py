@@ -109,5 +109,10 @@ def save_workout():
 @app.route('/get_stats')
 def get_stats():
     return jsonify({"reps": counter, "heart_rate": get_heart_rate()})
+@app.route('/reset_count')
+def reset_count():
+    global counter
+    counter=0
+    return "Counter reset!"
 if __name__ == '__main__':
     app.run(debug=True)

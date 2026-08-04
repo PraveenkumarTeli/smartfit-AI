@@ -31,8 +31,8 @@ landmarker = PoseLandmarker.create_from_options(options)
 cap = cv2.VideoCapture(0)
 frame_timestamp_ms = 0
 counter = 0
-stage = "down"
-
+stage_right = "down"
+stage_left = "down"
 connections = [
     (11, 12), (12, 14), (14, 16), (11, 13), (13, 15),
     (11, 23), (12, 24), (23, 24),
@@ -40,7 +40,7 @@ connections = [
 ]
 
 def generate_frames():
-    global frame_timestamp_ms, counter, stage
+    global frame_timestamp_ms, counter, stage_right,stage_left
 
     while True:
         ret, frame = cap.read()
@@ -55,15 +55,22 @@ def generate_frames():
         if result.pose_landmarks:
             h, w, _ = frame.shape
             for pose in result.pose_landmarks:
-                shoulder, elbow, wrist = pose[12], pose[14], pose[16]
-                angle = calculate_angle(shoulder, elbow, wrist)
+                shoulder_r, elbow_r, wrist_r = pose[12], pose[14], pose[16]
+                angle_r = calculate_angle(shoulder_r, elbow_r, wrist_r)
 
-                if angle < 50 and stage == "down":
-                    stage = "up"
-                if angle > 160 and stage == "up":
-                    stage = "down"
+                if angle_r < 50 and stage_right == "down":
+                    stage_right  = "up"
+                if angle_r > 160 and stage_right  == "up":
+                    stage_right = "down"
                     counter = counter + 1
+                shoulder_l,elbow_l,wrist_l= pose[11],pose[13],pose[15]
+                angle_l= calculate_angle(shoulder_l,elbow_l,wrist_l)
 
+                if angle_l <50 and stage_left == "down":
+                    stage_left  = "up"
+                if angle_l > 160 and stage_left == "up":
+                    stage_left = "down"
+                    counter = counter + 1
                 for start_idx, end_idx in connections:
                     start = pose[start_idx]
                     end = pose[end_idx]
@@ -75,7 +82,8 @@ def generate_frames():
                     x, y = int(lm.x * w), int(lm.y * h)
                     cv2.circle(frame, (x, y), 4, (0, 255, 0), -1)
 
-                cv2.putText(frame,"Angle: " +str(int(angle)), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(frame, "R Angle: " + str(int(angle_r)), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.putText(frame, "L Angle: " + str(int(angle_l)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(frame, "Rep Count: "+str(counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 cv2.putText(frame, "BPM: "+str(int(get_heart_rate())), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 

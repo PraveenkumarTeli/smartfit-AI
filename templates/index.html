@@ -35,8 +35,12 @@
 </head>
 <body>
     <h1>SmartFit AI - Live Workout Tracker</h1>
+    
     <img src="/video_feed" width="640" height="480">
     <br>
+    <button onclick="toggleCamera()" class="button">Camera On/Off</button>
+    <button onclick="selectExercise('bicep_curl')" class="button">Bicep Curl</button>
+    <button onclick="selectExercise('squat')" class="button">Squat</button>
     <a href="/save_workout" class="button">Save Workout</a>
     <button onclick="resetCounter()" class="button">Reset Counter</button>
     <a href="/history" class="button">View 
@@ -47,7 +51,12 @@
     <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
     </div>
 <script>
-    
+    function toggleCamera(){
+        fetch('/toggle_camera');
+    }
+    function selectExercise(exercise) {
+    fetch('/selected_exercise/' + exercise);
+    }
     function resetCounter() {
     fetch('/reset_count');
 }

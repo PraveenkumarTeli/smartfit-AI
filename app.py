@@ -6,6 +6,7 @@ import mysql.connector
 from smartwatch_api import get_heart_rate
 import os
 from dotenv import load_dotenv
+from datetime import date
 load_dotenv()
 conn = mysql.connector.connect(
     host="localhost",
@@ -117,8 +118,8 @@ def video_feed():
 @app.route('/save_workout')
 def save_workout():
     cursor=conn.cursor()
-    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("bicep_curl",counter,"2028-08-02"))
-    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("squat",squat_counter,"2028-08-02"))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("bicep_curl",counter,date.today()))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("squat",squat_counter,date.today()))
     conn.commit()
     return "workout saved!"
 @app.route('/get_stats')
@@ -129,5 +130,11 @@ def reset_count():
     global counter
     counter=0
     return "Counter reset!"
+@app.route('/history')
+def history():
+    cursor=conn.cursor()
+    cursor.execute("SELECT * FROM workouts")
+    data=cursor.fetchall()
+    return render_template('history.html', workouts=data)
 if __name__ == '__main__':
     app.run(debug=True)

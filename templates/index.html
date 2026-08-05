@@ -39,12 +39,15 @@
     <br>
     <a href="/save_workout" class="button">Save Workout</a>
     <button onclick="resetCounter()" class="button">Reset Counter</button>
+    <a href="/history" class="button">View 
+        History</a>
     <div id="stats">
     <p>Reps: <span id="reps">0</span></p>
     <p>Squats: <span id="squats">0</span></p>
     <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
     </div>
 <script>
+    
     function resetCounter() {
     fetch('/reset_count');
 }

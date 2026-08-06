@@ -37,6 +37,7 @@
             border-radius: 6px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Workout History</h1>
@@ -54,6 +55,33 @@
         </tr>
         {% endfor %}
     </table>
+
+    <canvas id="progressChart" width="600" height="300" style="margin: 30px auto; display: block;"></canvas>
+
     <a href="/" class="button">Back to Tracker</a>
+
+    <script>
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ bicep_dates | tojson }},
+                datasets: [
+                    {
+                        label: 'Bicep Curl Reps',
+                        data: {{ bicep_reps | tojson }},
+                        borderColor: '#00e676',
+                        fill: false
+                    },
+                    {
+                        label: 'Squat Reps',
+                        data: {{ squat_reps | tojson }},
+                        borderColor: '#2196f3',
+                        fill: false
+                    }
+                ]
+            }
+        });
+    </script>
 </body>
 </html>

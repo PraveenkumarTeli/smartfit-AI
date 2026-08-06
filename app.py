@@ -145,7 +145,18 @@ def history():
     cursor=conn.cursor()
     cursor.execute("SELECT * FROM workouts")
     data=cursor.fetchall()
-    return render_template('history.html', workouts=data)
+    bicep_dates = []
+    bicep_reps = []
+    squat_dates = []
+    squat_reps = []
+    for row in data:
+        if row[1] == "bicep_curl":
+            bicep_dates.append(str(row[3]))
+            bicep_reps.append(row[2])
+        if row[1] == "squat":
+            squat_dates.append(str(row[3]))
+            squat_reps.append(row[2])
+    return render_template('history.html', workouts=data, bicep_dates=bicep_dates, bicep_reps=bicep_reps, squat_dates=squat_dates, squat_reps=squat_reps)
 @app.route('/selected_exercise/<exercise>')
 def select_exercise(exercise):
     global selected_exercise

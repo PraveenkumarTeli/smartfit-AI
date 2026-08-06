@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - SmartFit AI</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 100px;
+        }
+        h1 {
+            color: #00e676;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 6px;
+            border: none;
+            width: 200px;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #00e676;
+            color: #121212;
+            border: none;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Account</h1>
+    <form method="POST">
+        <br>
+        <input type="text" name="username" placeholder="Username" required>
+        <br>
+        <input type="password" name="password" placeholder="Password" required>
+        <br>
+        <button type="submit">Register</button>
+        <p>Already have an account? <a href="/login" style="color: #00e676;">Login here</a></p>
+    </form>
+</body>
+</html>

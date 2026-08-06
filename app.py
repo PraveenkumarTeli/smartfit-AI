@@ -1,4 +1,4 @@
-from flask import Flask, Response,render_template,jsonify
+from flask import Flask, Response,render_template,jsonify,request,session,redirect
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -8,6 +8,7 @@ from smartwatch_api import get_heart_rate
 import os
 from dotenv import load_dotenv
 from datetime import date
+from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 conn = mysql.connector.connect(
     host="localhost",
@@ -18,7 +19,7 @@ conn = mysql.connector.connect(
 
 
 app = Flask(__name__)
-
+app.secret_key = os.environ.get("SECRET_KEY")
 BaseOptions = mp.tasks.BaseOptions
 PoseLandmarker = mp.tasks.vision.PoseLandmarker
 PoseLandmarkerOptions = mp.tasks.vision.PoseLandmarkerOptions
@@ -46,7 +47,7 @@ connections = [
 ]
 
 def generate_frames():
-    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on
+    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap
 
     while True:
         if not camera_on:
@@ -58,7 +59,7 @@ def generate_frames():
             continue
         ret, frame = cap.read()
         if not ret:
-            break
+            continue
         
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
@@ -120,6 +121,8 @@ def generate_frames():
 
 @app.route('/')
 def home():
+    if 'username' not in session:
+        return redirect('/login')
     return render_template('index.html')
 
 @app.route('/video_feed')
@@ -164,8 +167,46 @@ def select_exercise(exercise):
     return "selected: " + exercise
 @app.route('/toggle_camera')
 def toggle_camera():
-    global camera_on
+    global camera_on,cap
     camera_on = not camera_on
+    if camera_on:
+        cap = cv2.VideoCapture(0)
+    else: 
+        cap.release()
     return "camera"
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        hashed_password = generate_password_hash(password)
+        
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
+        conn.commit()
+        return redirect('/login')
+    
+    return render_template('register.html')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+
+        if user and check_password_hash(user[2], password):
+            session['username'] = username
+            return redirect('/')
+        else:
+            return "Invalid username or password"
+
+    return render_template('login.html')
+@app.route('/logout')
+def logout():
+    session.pop('username',None)
+    return redirect('/login')
 if __name__ == '__main__':
     app.run(debug=True)

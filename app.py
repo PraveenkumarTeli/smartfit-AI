@@ -130,10 +130,18 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 @app.route('/save_workout')
 def save_workout():
+    global counter,squat_counter
+    username = session['username']
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+    user_id = user[0]
     cursor=conn.cursor()
-    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("bicep_curl",counter,date.today()))
-    cursor.execute("INSERT INTO workouts (exercise,reps,date) VALUES(%s,%s,%s)",("squat",squat_counter,date.today()))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date,user_id) VALUES(%s,%s,%s,%s)",("bicep_curl",counter,date.today(),user_id))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date,user_id) VALUES(%s,%s,%s,%s)",("squat",squat_counter,date.today(),user_id))
     conn.commit()
+    counter=0
+    squat_counter=0
     return "workout saved!"
 @app.route('/get_stats')
 def get_stats():
@@ -145,9 +153,14 @@ def reset_count():
     return "Counter reset!"
 @app.route('/history')
 def history():
-    cursor=conn.cursor()
-    cursor.execute("SELECT * FROM workouts")
-    data=cursor.fetchall()
+    username = session['username']
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+    user_id = user[0]
+
+    cursor.execute("SELECT * FROM workouts WHERE user_id = %s", (user_id,))
+    data = cursor.fetchall()
     bicep_dates = []
     bicep_reps = []
     squat_dates = []

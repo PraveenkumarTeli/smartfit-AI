@@ -44,7 +44,7 @@
     <button onclick="toggleCamera()" class="button">Camera On/Off</button>
     <button onclick="selectExercise('bicep_curl')" class="button">Bicep Curl</button>
     <button onclick="selectExercise('squat')" class="button">Squat</button>
-    <a href="/save_workout" class="button">Save Workout</a>
+    <button onclick="saveWorkout()" class="button">Save Workout</button>
     <button onclick="resetCounter()" class="button">Reset Counter</button>
     
     <a href="/history" class="button">View 
@@ -55,6 +55,13 @@
     <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
     </div>
 <script>
+    function saveWorkout(){
+        fetch('/save_workout')
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+        });
+    }
     function toggleCamera(){
         fetch('/toggle_camera');
     }

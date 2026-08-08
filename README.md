@@ -96,9 +96,9 @@ CREATE TABLE workouts (
 
 - Smartwatch data is simulated due to hardware availability — real API 
   integration (Google Fit/Fitbit) planned
-- Duplicate username registration currently shows a raw error rather than a 
-  friendly message — planned fix
 - Additional exercise types (push-ups, lunges) could be added using the 
+- Duplicate username registration is handled gracefully with a friendly 
+  error message displayed on the registration form
   same angle-based detection pattern
 - Not yet deployed to a live server — currently runs locally
 

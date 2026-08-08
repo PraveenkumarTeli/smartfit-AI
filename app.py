@@ -72,7 +72,9 @@ def generate_frames():
                 if selected_exercise == "bicep_curl" :
                     shoulder_r, elbow_r, wrist_r = pose[12], pose[14], pose[16]
                     angle_r = calculate_angle(shoulder_r, elbow_r, wrist_r)
-
+                    heart_rate = get_heart_rate()
+                    if heart_rate > 150 or heart_rate < 50:
+                        cv2.putText(frame, "WARNING: Stop exercising!", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                     if angle_r < 50 and stage_right == "down":
                         stage_right  = "up"
                     if angle_r > 160 and stage_right  == "up":
@@ -89,10 +91,13 @@ def generate_frames():
                     cv2.putText(frame, "R Angle: " + str(int(angle_r)), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "L Angle: " + str(int(angle_l)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "Rep Count: "+str(counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                    cv2.putText(frame, "BPM: "+str(int(get_heart_rate())), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, "BPM: "+str(heart_rate), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 if selected_exercise == "squat" : 
                     hip,knee,ankle = pose[24],pose[26],pose[28]
                     angle_knee=calculate_angle(hip,knee,ankle )
+                    heart_rate = get_heart_rate()
+                    if heart_rate > 150 or heart_rate < 50:
+                        cv2.putText(frame, "WARNING: Stop exercising!", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                     if angle_knee < 90 and stage_squat == "up":
                         stage_squat = "down"
                     if angle_knee > 160 and stage_squat == "down":
@@ -100,7 +105,7 @@ def generate_frames():
                         squat_counter = squat_counter + 1
                     cv2.putText(frame, "knee Angle: " + str(int(angle_knee)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "squat count: "+str(squat_counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                    cv2.putText(frame, "BPM: "+str(int(get_heart_rate())), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, "BPM: "+str(heart_rate), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                 for start_idx, end_idx in connections:
                     start = pose[start_idx]
                     end = pose[end_idx]

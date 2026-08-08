@@ -1,8 +1,8 @@
 # SmartFit AI - Real-Time Workout Analysis System
 
-A computer vision-based fitness tracker that uses live pose estimation to count 
+A full-stack, computer vision-based fitness tracker that uses live pose estimation to count 
 exercise repetitions, calculate joint angles, and track workout metrics in real time 
-through a web interface.
+through a web interface — with secure multi-user support.
 
 ## Features
 
@@ -11,7 +11,10 @@ through a web interface.
 - **Automatic rep counting** via a finite state machine (tracks up/down motion cycles)
 - **Full-body skeleton overlay** rendered live on the video feed
 - **Multi-exercise support** — bicep curls (both arms) and squats, with an exercise selector
-- **Camera on/off toggle** for pausing the live feed
+- **Camera on/off toggle**, with proper hardware release when paused
+- **User authentication** — secure registration and login with hashed passwords 
+  (Werkzeug), session-based access control, and protected routes
+- **Per-user workout history** — each user's saved sessions are private to their account
 - **Web-based interface** built with Flask, streaming live video via MJPEG
 - **Workout history storage** using MySQL, with a visual progress chart (Chart.js)
 - **Simulated smartwatch integration** — heart rate data generated with realistic 
@@ -23,6 +26,7 @@ through a web interface.
 - **Backend:** Python, Flask
 - **Computer Vision:** OpenCV, MediaPipe (Tasks API)
 - **Database:** MySQL
+- **Auth:** Flask sessions, Werkzeug password hashing
 - **Frontend:** HTML, CSS, JavaScript, Chart.js
 - **Other:** python-dotenv (secure credential management)
 
@@ -36,14 +40,15 @@ through a web interface.
 
 ## How It Works
 
-1. Webcam frames are captured with OpenCV
-2. Each frame is processed by MediaPipe's Pose Landmarker to detect 33 body landmarks
-3. Depending on the selected exercise, relevant joint coordinates are extracted 
+1. Users register and log in; sessions control access to the tracker
+2. Webcam frames are captured with OpenCV
+3. Each frame is processed by MediaPipe's Pose Landmarker to detect 33 body landmarks
+4. Depending on the selected exercise, relevant joint coordinates are extracted 
    (shoulder-elbow-wrist for arms, hip-knee-ankle for squats)
-4. A state machine tracks the angle to detect complete rep cycles
-5. Results are overlaid on the video and streamed live to a browser via Flask
-6. Workout data can be saved to a MySQL database on demand, and viewed later 
-   on the history page with a progress chart
+5. A state machine tracks the angle to detect complete rep cycles
+6. Results are overlaid on the video and streamed live to a browser via Flask
+7. Workout data is saved to MySQL tied to the logged-in user, and viewable later 
+   on a personal history page with a progress chart
 
 ## Setup & Installation
 
@@ -56,28 +61,34 @@ cd smartfit-AI
 
 pip install flask opencv-python mediapipe mysql-connector-python python-dotenv
 
-3. Set up MySQL:
-   - Create a database named `smartfit_db`
-   - Create a `workouts` table (see schema below)
+3. Set up MySQL — create a database named `smartfit_db` with two tables (see schema below)
 
 4. Create a `.env` file in the project root with:
 
 DB_PASSWORD=your_mysql_password
+SECRET_KEY=any_long_random_string
 
 5. Run the app:
 
 python app.py
 
-6. Open `http://127.0.0.1:5000` in your browser
+6. Open `http://127.0.0.1:5000` in your browser — you'll be prompted to register/log in first
 
 ## Database Schema
 
 ```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(255)
+);
+
 CREATE TABLE workouts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     exercise VARCHAR(50),
     reps INT,
-    date DATE
+    date DATE,
+    user_id INT
 );
 ```
 
@@ -85,11 +96,13 @@ CREATE TABLE workouts (
 
 - Smartwatch data is simulated due to hardware availability — real API 
   integration (Google Fit/Fitbit) planned
-- No user authentication yet — single-user local use currently
+- Duplicate username registration currently shows a raw error rather than a 
+  friendly message — planned fix
 - Additional exercise types (push-ups, lunges) could be added using the 
   same angle-based detection pattern
+- Not yet deployed to a live server — currently runs locally
 
 ## Author
 
 Built as a hands-on learning project to gain practical experience in computer 
-vision, machine learning fundamentals, and full-stack development.
+vision, machine learning fundamentals, authentication/security, and full-stack development.

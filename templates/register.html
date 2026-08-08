@@ -33,6 +33,9 @@
 </head>
 <body>
     <h1>Create Account</h1>
+    {% if error %}
+    <p style="color: #ff5252;">{{ error }}</p>
+    {% endif %}
     <form method="POST">
         <br>
         <input type="text" name="username" placeholder="Username" required>

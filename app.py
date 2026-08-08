@@ -193,12 +193,13 @@ def register():
         username = request.form['username']
         password = request.form['password']
         hashed_password = generate_password_hash(password)
-        
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
-        conn.commit()
-        return redirect('/login')
-    
+        try: 
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (username, hashed_password))
+            conn.commit()
+            return redirect('/login')
+        except mysql.connector.IntegrityError:
+            return render_template('register.html', error="Username already taken. Please choose another.")
     return render_template('register.html')
 @app.route('/login', methods=['GET', 'POST'])
 def login():

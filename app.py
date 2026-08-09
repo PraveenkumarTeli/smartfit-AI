@@ -73,8 +73,10 @@ def generate_frames():
                     shoulder_r, elbow_r, wrist_r = pose[12], pose[14], pose[16]
                     angle_r = calculate_angle(shoulder_r, elbow_r, wrist_r)
                     heart_rate = get_heart_rate()
-                    if heart_rate > 150 or heart_rate < 50:
-                        cv2.putText(frame, "WARNING: Stop exercising!", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    if heart_rate > 150 :
+                        cv2.putText(frame, "Heart rate is high - consider slowing down", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+                    if heart_rate < 50 :
+                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)                   
                     if angle_r < 50 and stage_right == "down":
                         stage_right  = "up"
                     if angle_r > 160 and stage_right  == "up":
@@ -96,8 +98,11 @@ def generate_frames():
                     hip,knee,ankle = pose[24],pose[26],pose[28]
                     angle_knee=calculate_angle(hip,knee,ankle )
                     heart_rate = get_heart_rate()
-                    if heart_rate > 150 or heart_rate < 50:
-                        cv2.putText(frame, "WARNING: Stop exercising!", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    if heart_rate > 150 :
+                        cv2.putText(frame, "Heart rate is high - consider slowing down", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+                    if heart_rate < 50 :
+                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)                   
+                                        
                     if angle_knee < 90 and stage_squat == "up":
                         stage_squat = "down"
                     if angle_knee > 160 and stage_squat == "down":

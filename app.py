@@ -40,6 +40,11 @@ squat_counter = 0
 stage_squat = "up"
 selected_exercise = "bicep_curl"
 camera_on = True
+min_squat_angle = 180
+squat_feedback = ""
+min_angle_r = 180
+min_angle_l = 180
+bicep_feedback = ""
 connections = [
     (11, 12), (12, 14), (14, 16), (11, 13), (13, 15),
     (11, 23), (12, 24), (23, 24),
@@ -47,8 +52,7 @@ connections = [
 ]
 
 def generate_frames():
-    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap
-
+    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap,min_squat_angle,squat_feedback,min_angle_r,min_angle_l,bicep_feedback
     while True:
         if not camera_on:
             blank_frame = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -76,41 +80,86 @@ def generate_frames():
                     if heart_rate > 150 :
                         cv2.putText(frame, "Heart rate is high - consider slowing down", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
                     if heart_rate < 50 :
-                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)                   
-                    if angle_r < 50 and stage_right == "down":
+                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+
+                    # Track deepest curl while arm is in "up" (curled) phase
+                    if stage_right == "up" and angle_r < min_angle_r:
+                        min_angle_r = angle_r
+
+                    if angle_r < 90 and stage_right == "down":
                         stage_right  = "up"
+                        min_angle_r = angle_r
+
                     if angle_r > 160 and stage_right  == "up":
                         stage_right = "down"
                         counter = counter + 1
+                        if min_angle_r < 30:
+                            bicep_feedback = "Great curl!"
+                        elif min_angle_r < 50:
+                            bicep_feedback = "Good curl!"
+                        else:
+                            bicep_feedback = "Curl higher for full range"
+                        min_angle_r = 180
+
                     shoulder_l,elbow_l,wrist_l= pose[11],pose[13],pose[15]
                     angle_l= calculate_angle(shoulder_l,elbow_l,wrist_l)
 
-                    if angle_l <50 and stage_left == "down":
+                    if stage_left == "up" and angle_l < min_angle_l:
+                        min_angle_l = angle_l
+
+                    if angle_l < 90 and stage_left == "down":
                         stage_left  = "up"
+                        min_angle_l = angle_l
+
                     if angle_l > 160 and stage_left == "up":
                         stage_left = "down"
                         counter = counter + 1
+                        if min_angle_l < 30:
+                            bicep_feedback = "Great curl!"
+                        elif min_angle_l < 50:
+                            bicep_feedback = "Good curl!"
+                        else:
+                            bicep_feedback = "Curl higher for full range"
+                        min_angle_l = 180
+
                     cv2.putText(frame, "R Angle: " + str(int(angle_r)), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "L Angle: " + str(int(angle_l)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "Rep Count: "+str(counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "BPM: "+str(heart_rate), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, bicep_feedback, (50, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 230, 118), 2)
+
                 if selected_exercise == "squat" : 
                     hip,knee,ankle = pose[24],pose[26],pose[28]
                     angle_knee=calculate_angle(hip,knee,ankle )
                     heart_rate = get_heart_rate()
-                    if heart_rate > 150 :
+                    if heart_rate > 150:
                         cv2.putText(frame, "Heart rate is high - consider slowing down", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
-                    if heart_rate < 50 :
-                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)                   
-                                        
-                    if angle_knee < 90 and stage_squat == "up":
+                    if heart_rate < 50:
+                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+
+                    if stage_squat == "down" and angle_knee < min_squat_angle:
+                        min_squat_angle = angle_knee
+
+                    if angle_knee < 140 and stage_squat == "up":
                         stage_squat = "down"
+                        min_squat_angle = angle_knee
+
                     if angle_knee > 160 and stage_squat == "down":
                         stage_squat = "up"
                         squat_counter = squat_counter + 1
+                        if min_squat_angle < 70:
+                            squat_feedback = "Great depth!"
+                        elif min_squat_angle < 90:
+                            squat_feedback = "Good squat!"
+                        else:
+                            squat_feedback = "Try to squat lower"
+                        min_squat_angle = 180
+
                     cv2.putText(frame, "knee Angle: " + str(int(angle_knee)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "squat count: "+str(squat_counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "BPM: "+str(heart_rate), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, squat_feedback, (50, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 230, 118), 2)
+
                 for start_idx, end_idx in connections:
                     start = pose[start_idx]
                     end = pose[end_idx]

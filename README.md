@@ -20,6 +20,10 @@ through a web interface — with secure multi-user support.
 - **Simulated smartwatch integration** — heart rate data generated with realistic 
   drift patterns (real hardware integration planned as a future enhancement)
 - **Live-updating stats** (reps, squats, heart rate) via JavaScript fetch + Flask JSON API
+- **Form feedback** — evaluates squat depth and curl extension, giving coaching-style 
+  messages (e.g., "Great depth!", "Curl higher for full range") rather than just counting reps
+- **Audio feedback** — a short beep plays automatically each time a rep is counted
+
 
 ## Tech Stack
 

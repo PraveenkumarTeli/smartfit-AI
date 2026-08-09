@@ -54,7 +54,9 @@
     <p>Squats: <span id="squats">0</span></p>
     <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
     </div>
+    <audio id="beepSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 <script>
+    let previousReps = 0;
     function saveWorkout(){
         fetch('/save_workout')
         .then(response => response.text())
@@ -76,9 +78,15 @@ function updateStats() {
         .then(response => response.json())
         .then(data => {
             document.getElementById('reps').innerText = data.reps;
+            if (data.reps > previousReps) {
+                document.getElementById('beepSound').play();
+            }
+            previousReps = data.reps;
             document.getElementById('squats').innerText = data.squats;
             document.getElementById('heart_rate').innerText = data.heart_rate;
+            
         });
+    
 }
 
 setInterval(updateStats, 1000);

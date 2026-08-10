@@ -5,3 +5,5 @@ def calculate_angle(a,b,c):
 	if angle>180:
 		angle=360-angle
 	return angle
+def is_visible(a, b, c, threshold=0.5):
+    return a.visibility > threshold and b.visibility > threshold and c.visibility > threshold

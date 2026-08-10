@@ -7,6 +7,8 @@ through a web interface — with secure multi-user support.
 ## Features
 
 - **Real-time pose detection** using MediaPipe's Pose Landmarker (33 body landmarks)
+- **Confidence-based filtering** — skips angle calculations when landmark visibility 
+  is low, preventing false rep counts or incorrect readings from unreliable detections
 - **Live joint angle calculation** using vector math (atan2-based)
 - **Automatic rep counting** via a finite state machine (tracks up/down motion cycles)
 - **Full-body skeleton overlay** rendered live on the video feed

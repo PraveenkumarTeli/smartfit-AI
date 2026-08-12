@@ -3,93 +3,280 @@
 <head>
     <title>SmartFit AI</title>
     <style>
+        :root {
+            --bg: #0a0e0d;
+            --panel: #201e1e;
+            --panel-2: #161d1f;
+            --border: #232c2e;
+            --accent: #29f56a;
+            --accent-dim: #00e67622;
+            --text: #eaf5f0;
+            --text-dim: #9f94a9;
+            --orange: #ffb74d;
+            --red: #d94646;
+        }
+        * { box-sizing: border-box; }
         body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 40px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
         }
-        h1 {
-            color: #00e676;
+
+        /* Top navbar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
         }
-        img {
-            border: 3px solid #00e676;
-            border-radius: 10px;
-            margin-top: 20px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
         }
-        a.button,button.button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 24px;
-            background-color: #00e676;
-            color: #121212;
+        .brand-icon {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), #00bfa5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a {
+            color: var(--text-dim);
             text-decoration: none;
-            font-weight: bold;
-            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 8px;
         }
-        a.button:hover {
-            background-color: #00c65e;
+        .nav-links a:hover { color: var(--text); background: var(--panel-2); }
+        .nav-links a.active { color: var(--accent); background: var(--accent-dim); }
+
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            padding: 24px 32px;
+            align-items: start;
+        }
+
+        /* Main video card */
+        .main-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .main-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .main-card-header h2 { margin: 0; font-size: 20px; }
+        select#exerciseSelect {
+            background: var(--panel-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .video-frame {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #000;
+        }
+        .video-frame img { display: block; width: 100%; }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        button, .btn-link {
+            background: var(--panel-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        button:hover, .btn-link:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-primary {
+            background: var(--accent);
+            color: #06120d;
+            border: none;
+        }
+        .btn-primary:hover { color: #06120d; opacity: 0.9; }
+
+        /* Sidebar */
+        .sidebar { display: grid; gap: 16px; }
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+        }
+        .stat-label {
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .stat-value {
+            font-size: 40px;
+            font-weight: 800;
+            margin-top: 6px;
+        }
+        .stat-value span.unit {
+            font-size: 15px;
+            color: var(--text-dim);
+            font-weight: 500;
+            margin-left: 4px;
+        }
+        .stat-card.reps { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim); }
+        .stat-card.reps .stat-value { color: var(--accent); }
+        .stat-card.hr .stat-value { color: var(--orange); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div style="text-align: right; padding: 10px 30px;">
-        <a href="/logout" class="button">Logout</a>
-    </div>
-    <h1>SmartFit AI - Live Workout Tracker</h1>
-    
-    <img src="/video_feed" width="640" height="480">
-    <br>
-    <button onclick="toggleCamera()" class="button">Camera On/Off</button>
-    <button onclick="selectExercise('bicep_curl')" class="button">Bicep Curl</button>
-    <button onclick="selectExercise('squat')" class="button">Squat</button>
-    <button onclick="saveWorkout()" class="button">Save Workout</button>
-    <button onclick="resetCounter()" class="button">Reset Counter</button>
-    
-    <a href="/history" class="button">View 
-        History</a>
-    <div id="stats">
-    <p>Reps: <span id="reps">0</span></p>
-    <p>Squats: <span id="squats">0</span></p>
-    <p>Heart Rate: <span id="heart_rate">0</span> BPM</p>
-    </div>
-    <audio id="beepSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-<script>
-    let previousReps = 0;
-    function saveWorkout(){
-        fetch('/save_workout')
-        .then(response => response.text())
-        .then(data => {
-            alert(data);
-        });
-    }
-    function toggleCamera(){
-        fetch('/toggle_camera');
-    }
-    function selectExercise(exercise) {
-    fetch('/selected_exercise/' + exercise);
-    }
-    function resetCounter() {
-    fetch('/reset_count');
-}
-function updateStats() {
-    fetch('/get_stats')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('reps').innerText = data.reps;
-            if (data.reps > previousReps) {
-                document.getElementById('beepSound').play();
-            }
-            previousReps = data.reps;
-            document.getElementById('squats').innerText = data.squats;
-            document.getElementById('heart_rate').innerText = data.heart_rate;
-            
-        });
-    
-}
 
-setInterval(updateStats, 1000);
-</script>
+    <div class="navbar">
+        <div class="brand">
+            <div class="brand-icon">💪</div>
+            SmartFit AI
+        </div>
+        <div class="nav-links">
+            <a href="/" class="active">Live Workout</a>
+            <a href="/history">History</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div class="main-card">
+            <div class="main-card-header">
+                <h2>Live Tracking</h2>
+                <select id="exerciseSelect" onchange="selectExercise(this.value)">
+                    <option value="bicep_curl">Bicep Curl</option>
+                    <option value="squat">Squat</option>
+                </select>
+            </div>
+
+            <div class="video-frame">
+                <img src="/video_feed" width="640" height="480">
+            </div>
+
+            <div class="controls-row">
+                <button onclick="toggleCamera()">📷 Camera On/Off</button>
+                <button class="btn-primary" onclick="saveWorkout()">💾 Save Workout</button>
+                <button onclick="resetCounter()">↺ Reset Counter</button>
+                <a href="/history" class="btn-link">📊 View History</a>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="stat-card reps">
+                <div class="stat-label">Bicep Curl Reps</div>
+                <div class="stat-value"><span id="reps">0</span></div>
+                <div style="margin-top: 12px; font-size: 13px;">
+                Target: <input type="number" id="repTarget" value="0" style="width: 50px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px;">
+                <span id="repStatus"></span>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="stat-card">
+                    <div class="stat-label">Squats</div>
+                    <div class="stat-value"><span id="squats">0</span></div>
+                    <div style="margin-top: 12px; font-size: 13px;">
+                    Target: <input type="number" id="squatTarget" value="0" style="width: 50px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 4px;">
+                    <span id="squatStatus"></span>
+                    </div>
+                </div>
+                <div class="stat-card hr">
+                    <div class="stat-label">Heart Rate</div>
+                    <div class="stat-value"><span id="heart_rate">0</span><span class="unit">bpm</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="beepSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+    <script>
+        let previousReps = 0;
+
+        function selectExercise(exercise) {
+            fetch('/selected_exercise/' + exercise);
+        }
+        function toggleCamera() {
+            fetch('/toggle_camera');
+        }
+        function resetCounter() {
+            fetch('/reset_count');
+        }
+        function saveWorkout() {
+            fetch('/save_workout')
+                .then(response => response.text())
+                .then(data => {
+                    alert(data);
+                });
+        }
+        function updateStats() {
+            fetch('/get_stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('reps').innerText = data.reps;
+                    document.getElementById('squats').innerText = data.squats;
+                    document.getElementById('heart_rate').innerText = data.heart_rate;
+                    if (data.reps > previousReps) {
+                        document.getElementById('beepSound').play();
+                    }
+                    previousReps = data.reps;
+                    let repTarget = document.getElementById('repTarget').value;
+                    if ( repTarget>0 && data.reps >= repTarget ) {
+                        document.getElementById('repStatus').innerText = "✅ Target completed!";
+                    } else {
+                        document.getElementById('repStatus').innerText = "";
+                    }
+
+                    let squatTarget = document.getElementById('squatTarget').value;
+                    if (squatTarget>0 && data.squats >= squatTarget) {
+                        document.getElementById('squatStatus').innerText = "✅ Target completed!";
+                    } else {
+                        document.getElementById('squatStatus').innerText = "";
+                    }
+                });
+                
+        }
+        setInterval(updateStats, 1000);
+    </script>
 </body>
 </html>

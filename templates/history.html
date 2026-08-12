@@ -2,63 +2,165 @@
 <html>
 <head>
     <title>Workout History</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg: #0a0e0d;
+            --panel: #12181a;
+            --panel-2: #161d1f;
+            --border: #232c2e;
+            --accent: #00e676;
+            --accent-dim: #00e67622;
+            --text: #eaf5f0;
+            --text-dim: #8fa39c;
+        }
+        * { box-sizing: border-box; }
         body {
-            background-color: #121212;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding-top: 40px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
         }
-        h1 {
-            color: #00e676;
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border);
         }
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 60%;
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 20px; font-weight: 700;
         }
+        .brand-icon {
+            width: 34px; height: 34px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), #00bfa5);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 14px; font-weight: 500;
+            padding: 8px 14px; border-radius: 8px;
+        }
+        .nav-links a:hover { color: var(--text); background: var(--panel-2); }
+        .nav-links a.active { color: var(--accent); background: var(--accent-dim); }
+
+        .page-header { padding: 24px 32px 0; }
+        .page-header h1 { margin: 0 0 4px; font-size: 26px; }
+        .page-header p { color: var(--text-dim); margin: 0; font-size: 14px; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 24px 32px;
+            align-items: start;
+        }
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .card h3 {
+            margin: 0 0 16px;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+        }
+        table { width: 100%; border-collapse: collapse; }
         th, td {
-            border: 1px solid #444;
-            padding: 10px;
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border);
         }
         th {
-            background-color: #00e676;
-            color: #121212;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
         }
-        a.button {
+        tr:last-child td { border-bottom: none; }
+        td.exercise-bicep { color: var(--accent); font-weight: 600; }
+        td.exercise-squat { color: #64b5f6; font-weight: 600; }
+
+        .legend { display: flex; gap: 16px; margin-bottom: 14px; font-size: 13px; color: var(--text-dim); }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+
+        .btn-link {
             display: inline-block;
-            margin-top: 20px;
-            padding: 12px 24px;
-            background-color: #00e676;
-            color: #121212;
+            margin: 24px 32px;
+            background: var(--panel-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
             text-decoration: none;
-            font-weight: bold;
-            border-radius: 6px;
+        }
+        .btn-link:hover { border-color: var(--accent); color: var(--accent); }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Workout History</h1>
-    <table>
-        <tr>
-            <th>Exercise</th>
-            <th>Reps</th>
-            <th>Date</th>
-        </tr>
-        {% for row in workouts %}
-        <tr>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-        </tr>
-        {% endfor %}
-    </table>
 
-    <canvas id="progressChart" width="600" height="300" style="margin: 30px auto; display: block;"></canvas>
+    <div class="navbar">
+        <div class="brand">
+            <div class="brand-icon">💪</div>
+            SmartFit AI
+        </div>
+        <div class="nav-links">
+            <a href="/">Live Workout</a>
+            <a href="/history" class="active">History</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
 
-    <a href="/" class="button">Back to Tracker</a>
+    <div class="page-header">
+        <h1>Workout History</h1>
+        <p>Your saved sessions and progress over time</p>
+    </div>
+
+    <div class="layout">
+        <div class="card">
+            <h3>Session Log</h3>
+            <table>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Reps</th>
+                    <th>Date</th>
+                </tr>
+                {% for row in workouts %}
+                <tr>
+                    <td class="exercise-{{ 'bicep' if row[1] == 'bicep_curl' else 'squat' }}">{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Progress Chart</h3>
+            <div class="legend">
+                <span><span class="dot" style="background:#00e676;"></span> Bicep Curl</span>
+                <span><span class="dot" style="background:#64b5f6;"></span> Squat</span>
+            </div>
+            <canvas id="progressChart" height="260"></canvas>
+        </div>
+    </div>
+
+    <a href="/" class="btn-link">← Back to Tracker</a>
 
     <script>
         const ctx = document.getElementById('progressChart').getContext('2d');
@@ -71,15 +173,26 @@
                         label: 'Bicep Curl Reps',
                         data: {{ bicep_reps | tojson }},
                         borderColor: '#00e676',
-                        fill: false
+                        backgroundColor: 'rgba(0,230,118,0.08)',
+                        fill: true,
+                        tension: 0.3
                     },
                     {
                         label: 'Squat Reps',
                         data: {{ squat_reps | tojson }},
-                        borderColor: '#2196f3',
-                        fill: false
+                        borderColor: '#64b5f6',
+                        backgroundColor: 'rgba(100,181,246,0.08)',
+                        fill: true,
+                        tension: 0.3
                     }
                 ]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#8fa39c' }, grid: { color: '#232c2e' } },
+                    y: { ticks: { color: '#8fa39c' }, grid: { color: '#232c2e' } }
+                }
             }
         });
     </script>

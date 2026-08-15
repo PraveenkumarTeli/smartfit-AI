@@ -139,12 +139,14 @@
                     <th>Exercise</th>
                     <th>Reps</th>
                     <th>Date</th>
+                    <th>Duration</th>
                 </tr>
                 {% for row in workouts %}
                 <tr>
                     <td class="exercise-{{ 'bicep' if row[1] == 'bicep_curl' else 'squat' }}">{{ row[1] }}</td>
                     <td>{{ row[2] }}</td>
                     <td>{{ row[3] }}</td>
+                    <td>{{ row[5]}}s</td>
                 </tr>
                 {% endfor %}
             </table>

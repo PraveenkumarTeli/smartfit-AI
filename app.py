@@ -195,13 +195,14 @@ def video_feed():
 def save_workout():
     global counter,squat_counter
     username = session['username']
+    duration = request.args.get('duration')
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     user_id = user[0]
     cursor=conn.cursor()
-    cursor.execute("INSERT INTO workouts (exercise,reps,date,user_id) VALUES(%s,%s,%s,%s)",("bicep_curl",counter,date.today(),user_id))
-    cursor.execute("INSERT INTO workouts (exercise,reps,date,user_id) VALUES(%s,%s,%s,%s)",("squat",squat_counter,date.today(),user_id))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date,user_id,duration) VALUES(%s,%s,%s,%s,%s)",("bicep_curl",counter,date.today(),user_id,duration))
+    cursor.execute("INSERT INTO workouts (exercise,reps,date,user_id,duration) VALUES(%s,%s,%s,%s,%s)",("squat",squat_counter,date.today(),user_id,duration))
     conn.commit()
     counter=0
     squat_counter=0

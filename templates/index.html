@@ -175,7 +175,7 @@
         <div class="nav-links">
             <a href="/" class="active">Live Workout</a>
             <a href="/history">History</a>
-            <a href="/logout">Logout</a>
+            <a href="#" onclick="logout()">Logout</a>
         </div>
     </div>
 
@@ -183,6 +183,7 @@
         <div class="main-card">
             <div class="main-card-header">
                 <h2>Live Tracking</h2>
+                <span id="sessionTimer" style="color: var(--text-dim); font-size: 14px;">00:00</span>
                 <select id="exerciseSelect" onchange="selectExercise(this.value)">
                     <option value="bicep_curl">Bicep Curl</option>
                     <option value="squat">Squat</option>
@@ -231,8 +232,27 @@
     <audio id="beepSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script>
-        let previousReps = 0;
+        let sessionStart = localStorage.getItem('sessionStart');
+        if (!sessionStart) {
+            sessionStart = Date.now();
+            localStorage.setItem('sessionStart', sessionStart);
+        } else {
+            sessionStart = parseInt(sessionStart);
+        }
+        function updateTimer() {
+            let elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+            let minutes = Math.floor(elapsed / 60);
+            let seconds = elapsed % 60;
+            let display = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+            document.getElementById('sessionTimer').innerText = display;
+        }
 
+        setInterval(updateTimer, 1000);
+        let previousReps = 0;
+        function logout() {
+            localStorage.removeItem('sessionStart');
+            window.location.href = '/logout';
+        }
         function selectExercise(exercise) {
             fetch('/selected_exercise/' + exercise);
         }
@@ -240,13 +260,18 @@
             fetch('/toggle_camera');
         }
         function resetCounter() {
-            fetch('/reset_count');
+            if(confirm("Are you sure you want to reset your counter?")){
+                fetch('/reset_count');
         }
+    }
         function saveWorkout() {
-            fetch('/save_workout')
+            let elapsedSeconds = Math.floor((Date.now() - sessionStart) / 1000);
+            fetch('/save_workout?duration=' + elapsedSeconds)
                 .then(response => response.text())
                 .then(data => {
                     alert(data);
+                    sessionStart = Date.now();
+                    localStorage.setItem('sessionStart', sessionStart);
                 });
         }
         function updateStats() {

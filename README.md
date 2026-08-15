@@ -19,6 +19,8 @@ through a web interface — with secure multi-user support.
 - **Per-user workout history** — each user's saved sessions are private to their account
 - **Web-based interface** built with Flask, streaming live video via MJPEG
 - **Workout history storage** using MySQL, with a visual progress chart (Chart.js)
+- **Session duration tracking** — automatically times each workout session, persisting 
+  across page refreshes and correctly resetting when a session is saved or the user logs out
 - **Simulated smartwatch integration** — heart rate data generated with realistic 
   drift patterns (real hardware integration planned as a future enhancement)
 - **Live-updating stats** (reps, squats, heart rate) via JavaScript fetch + Flask JSON API

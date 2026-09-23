@@ -195,6 +195,7 @@
             </div>
 
             <div class="controls-row">
+                <button onclick="toggleAuto()">🤖 Auto Detect</button>
                 <button onclick="toggleCamera()">📷 Camera On/Off</button>
                 <button class="btn-primary" onclick="saveWorkout()">💾 Save Workout</button>
                 <button onclick="resetCounter()">↺ Reset Counter</button>
@@ -255,6 +256,9 @@
         }
         function selectExercise(exercise) {
             fetch('/selected_exercise/' + exercise);
+        }
+        function toggleAuto() {
+            fetch('/toggle_auto');
         }
         function toggleCamera() {
             fetch('/toggle_camera');

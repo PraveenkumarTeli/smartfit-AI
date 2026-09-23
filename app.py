@@ -45,6 +45,7 @@ squat_feedback = ""
 min_angle_r = 180
 min_angle_l = 180
 bicep_feedback = ""
+auto_mode=False
 connections = [
     (11, 12), (12, 14), (14, 16), (11, 13), (13, 15),
     (11, 23), (12, 24), (23, 24),
@@ -52,7 +53,7 @@ connections = [
 ]
 
 def generate_frames():
-    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap,min_squat_angle,squat_feedback,min_angle_r,min_angle_l,bicep_feedback
+    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap,min_squat_angle,squat_feedback,min_angle_r,min_angle_l,bicep_feedback,auto_mode
     while True:
         if not camera_on:
             blank_frame = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -73,6 +74,17 @@ def generate_frames():
         if result.pose_landmarks:
             h, w, _ = frame.shape
             for pose in result.pose_landmarks:
+                if auto_mode:
+                    hip_a, knee_a, ankle_a = pose[24], pose[26], pose[28]
+                    shoulder_a, elbow_a, wrist_a = pose[12], pose[14], pose[16]
+                    if is_visible(hip_a, knee_a, ankle_a):
+                        knee_check = calculate_angle(hip_a, knee_a, ankle_a)
+                        if knee_check < 150:
+                            selected_exercise = "squat"
+                        elif is_visible(shoulder_a, elbow_a, wrist_a):
+                            elbow_check = calculate_angle(shoulder_a, elbow_a, wrist_a)
+                            if elbow_check < 150:
+                                selected_exercise = "bicep_curl"
                 if selected_exercise == "bicep_curl" :
                     heart_rate = get_heart_rate()
                     if heart_rate > 150 :
@@ -242,6 +254,11 @@ def select_exercise(exercise):
     global selected_exercise
     selected_exercise=exercise
     return "selected: " + exercise
+@app.route('/toggle_auto')
+def toggle_auto():
+    global auto_mode
+    auto_mode = not auto_mode
+    return "auto mode toggled"
 @app.route('/toggle_camera')
 def toggle_camera():
     global camera_on,cap

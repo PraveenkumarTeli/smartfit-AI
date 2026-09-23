@@ -27,7 +27,9 @@ through a web interface — with secure multi-user support.
 - **Form feedback** — evaluates squat depth and curl extension, giving coaching-style 
   messages (e.g., "Great depth!", "Curl higher for full range") rather than just counting reps
 - **Audio feedback** — a short beep plays automatically each time a rep is counted
-
+- **Auto-detect exercise mode** — a rule-based classifier that infers whether the user 
+  is doing a bicep curl or squat from live pose data (knee vs. elbow bend), automatically 
+  switching tracking modes without manual selection
 
 ## Tech Stack
 

@@ -106,10 +106,29 @@
             text-decoration: none;
         }
         .btn-link:hover { border-color: var(--accent); color: var(--accent); }
-
-        @media (max-width: 900px) {
-            .layout { grid-template-columns: 1fr; }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 24px 32px 0;
         }
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+        }
+        .stat-label {
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .stat-value { font-size: 34px; font-weight: 800; margin-top: 6px; color: var(--accent); }
+        .stat-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+        @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+             
     </style>
 </head>
 <body>
@@ -130,7 +149,28 @@
         <h1>Workout History</h1>
         <p>Your saved sessions and progress over time</p>
     </div>
-
+    <div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-label">This week</div>
+        <div class="stat-value">{{ this_week }}</div>
+        <div class="stat-sub">{{ '+' if this_week >= last_week else '' }}{{ this_week - last_week }} vs last week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Last week</div>
+        <div class="stat-value">{{ last_week }}</div>
+        <div class="stat-sub">total reps</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Current streak</div>
+        <div class="stat-value">{{ current_streak }}</div>
+        <div class="stat-sub">{{ 'day' if current_streak == 1 else 'days' }} in a row</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Best streak</div>
+        <div class="stat-value">{{ best_streak }}</div>
+        <div class="stat-sub">{{ 'day' if best_streak == 1 else 'days' }}</div>
+    </div>
+</div>
     <div class="layout">
         <div class="card">
             <h3>Session Log</h3>

@@ -7,7 +7,7 @@ import mysql.connector
 from smartwatch_api import get_heart_rate
 import os
 from dotenv import load_dotenv
-from datetime import date
+from datetime import date,timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 conn = mysql.connector.connect(
@@ -237,6 +237,54 @@ def history():
 
     cursor.execute("SELECT * FROM workouts WHERE user_id = %s", (user_id,))
     data = cursor.fetchall()
+
+    # Weekly totals
+    cursor.execute(
+        "SELECT COALESCE(SUM(reps), 0) FROM workouts "
+        "WHERE user_id = %s AND date >= CURDATE() - INTERVAL 6 DAY",
+        (user_id,)
+    )
+    this_week = int(cursor.fetchone()[0])
+
+    cursor.execute(
+        "SELECT COALESCE(SUM(reps), 0) FROM workouts "
+        "WHERE user_id = %s AND date BETWEEN CURDATE() - INTERVAL 13 DAY "
+        "AND CURDATE() - INTERVAL 7 DAY",
+        (user_id,)
+    )
+    last_week = int(cursor.fetchone()[0])
+
+    # Streaks: a day counts only if total reps that day is above 0
+    cursor.execute(
+        "SELECT date FROM workouts WHERE user_id = %s "
+        "GROUP BY date HAVING SUM(reps) > 0 ORDER BY date",
+        (user_id,)
+    )
+    active_days = [r[0] for r in cursor.fetchall()]
+    active_set = set(active_days)
+
+    # Current streak: counts back from today, or from yesterday if you
+    # haven't worked out yet today (so the streak isn't lost mid-day)
+    day = date.today()
+    if day not in active_set:
+        day = day - timedelta(days=1)
+    current_streak = 0
+    while day in active_set:
+        current_streak += 1
+        day = day - timedelta(days=1)
+
+    # Best streak: longest run of consecutive days ever
+    best_streak = 0
+    run = 0
+    prev = None
+    for d in active_days:
+        if prev is not None and (d - prev).days == 1:
+            run += 1
+        else:
+            run = 1
+        best_streak = max(best_streak, run)
+        prev = d
+
     bicep_dates = []
     bicep_reps = []
     squat_dates = []
@@ -248,7 +296,15 @@ def history():
         if row[1] == "squat":
             squat_dates.append(str(row[3]))
             squat_reps.append(row[2])
-    return render_template('history.html', workouts=data, bicep_dates=bicep_dates, bicep_reps=bicep_reps, squat_dates=squat_dates, squat_reps=squat_reps)
+
+    return render_template(
+        'history.html',
+        workouts=data,
+        bicep_dates=bicep_dates, bicep_reps=bicep_reps,
+        squat_dates=squat_dates, squat_reps=squat_reps,
+        this_week=this_week, last_week=last_week,
+        current_streak=current_streak, best_streak=best_streak
+    )
 @app.route('/selected_exercise/<exercise>')
 def select_exercise(exercise):
     global selected_exercise

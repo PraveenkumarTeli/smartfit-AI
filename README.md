@@ -30,7 +30,8 @@ through a web interface — with secure multi-user support.
 - **Auto-detect exercise mode** — a rule-based classifier that infers whether the user 
   is doing a bicep curl or squat from live pose data (knee vs. elbow bend), automatically 
   switching tracking modes without manual selection
-
+- **Weekly stats and streaks** — compares this week's reps against last week and tracks 
+  current and best workout-day streaks, calculated from saved history
 ## Tech Stack
 
 - **Backend:** Python, Flask

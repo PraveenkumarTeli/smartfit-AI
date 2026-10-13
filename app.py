@@ -46,6 +46,10 @@ min_angle_r = 180
 min_angle_l = 180
 bicep_feedback = ""
 auto_mode=False
+pushup_counter = 0
+stage_pushup = "up"
+min_pushup_angle = 180
+pushup_feedback = ""
 connections = [
     (11, 12), (12, 14), (14, 16), (11, 13), (13, 15),
     (11, 23), (12, 24), (23, 24),
@@ -53,7 +57,7 @@ connections = [
 ]
 
 def generate_frames():
-    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap,min_squat_angle,squat_feedback,min_angle_r,min_angle_l,bicep_feedback,auto_mode
+    global frame_timestamp_ms, counter, stage_right,stage_left,squat_counter,stage_squat,selected_exercise,camera_on,cap,min_squat_angle,squat_feedback,min_angle_r,min_angle_l,bicep_feedback,auto_mode,pushup_counter, stage_pushup, min_pushup_angle, pushup_feedback
     while True:
         if not camera_on:
             blank_frame = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -175,7 +179,45 @@ def generate_frames():
                     cv2.putText(frame, "squat count: "+str(squat_counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, "BPM: "+str(heart_rate), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
                     cv2.putText(frame, squat_feedback, (50, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 230, 118), 2)
+                if selected_exercise == "pushup":
+                    heart_rate = get_heart_rate()
+                    if heart_rate > 150:
+                        cv2.putText(frame, "Heart rate is high - consider slowing down", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
+                    if heart_rate < 50:
+                        cv2.putText(frame, "Heart rate is low - check in with yourself", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 165, 255), 2)
 
+                    # Side view hides the far arm, so use whichever arm is more visible
+                    right_arm = (pose[12], pose[14], pose[16])
+                    left_arm = (pose[11], pose[13], pose[15])
+                    right_vis = sum(lm.visibility for lm in right_arm)
+                    left_vis = sum(lm.visibility for lm in left_arm)
+                    shoulder_p, elbow_p, wrist_p = right_arm if right_vis >= left_vis else left_arm
+
+                    if is_visible(shoulder_p, elbow_p, wrist_p):
+                        angle_pushup = calculate_angle(shoulder_p, elbow_p, wrist_p)
+
+                        if stage_pushup == "down" and angle_pushup < min_pushup_angle:
+                            min_pushup_angle = angle_pushup
+
+                        if angle_pushup < 140 and stage_pushup == "up":
+                            stage_pushup = "down"
+                            min_pushup_angle = angle_pushup
+
+                        if angle_pushup > 160 and stage_pushup == "down":
+                            stage_pushup = "up"
+                            pushup_counter = pushup_counter + 1
+                            if min_pushup_angle < 90:
+                                pushup_feedback = "Great depth!"
+                            elif min_pushup_angle < 110:
+                                pushup_feedback = "Good push-up!"
+                            else:
+                                pushup_feedback = "Go lower for full range"
+                            min_pushup_angle = 180
+
+                        cv2.putText(frame, "Elbow Angle: " + str(int(angle_pushup)), (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, "pushup count: " + str(pushup_counter), (50, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, "BPM: " + str(heart_rate), (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(frame, pushup_feedback, (50, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 230, 118), 2)
                 for start_idx, end_idx in connections:
                     start = pose[start_idx]
                     end = pose[end_idx]
